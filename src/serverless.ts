@@ -1,24 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import express, { Request, Response } from 'express';
 
 const server = express();
-let appInitialized = false;
+let appPromise: Promise<any> | null = null;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
   app.enableCors();
   await app.init();
-  appInitialized = true;
+  return app;
 }
 
-bootstrap();
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!appInitialized) {
-    await bootstrap();
+export default async function handler(req: Request, res: Response) {
+  if (!appPromise) {
+    appPromise = bootstrap();
   }
-  server(req, res); // Forward Vercel request to Express
+  await appPromise;
+  server(req, res); // Forward request to NestJS
 }
