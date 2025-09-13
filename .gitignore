@@ -1,7 +1,11 @@
-# compiled output
+# build output
 /dist
 /node_modules
 /build
+
+# Prisma client (generated, should not be committed)
+node_modules/.prisma
+.prisma
 
 # Logs
 logs
