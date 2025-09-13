@@ -20,5 +20,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!appInitialized) {
     await bootstrap();
   }
-  server(req, res);
+  server(req, res); // Forward Vercel request to Express
 }
