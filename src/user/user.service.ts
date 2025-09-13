@@ -1,23 +1,31 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from '@nestjs/common'
+
+export interface User {
+  id: number
+  name: string
+  email: string
+}
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  private static users: User[] = []
+  private static idCounter = 1
 
-  getAllUsers() {
-    return this.prisma.user.findMany();
+  getAllUsers(): User[] {
+    return UserService.users
   }
 
-  getUserById(id: number) {
-    return this.prisma.user.findUnique({
-      where: { id },
-    });
+  getUserById(id: number): User | undefined {
+    return UserService.users.find(user => user.id === id)
   }
 
-  createUser(data: { name: string; email: string }) {
-    return this.prisma.user.create({
-      data,
-    });
+  createUser(data: { name: string; email: string }): User {
+    const newUser: User = {
+      id: UserService.idCounter++,
+      name: data.name,
+      email: data.email,
+    }
+    UserService.users.push(newUser)
+    return newUser
   }
 }
