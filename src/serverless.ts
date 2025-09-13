@@ -8,6 +8,7 @@ let appPromise: Promise<any> | null = null;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+  app.setGlobalPrefix('api'); // <-- Add this
   app.enableCors();
   await app.init();
   return app;
@@ -18,5 +19,5 @@ export default async function handler(req: Request, res: Response) {
     appPromise = bootstrap();
   }
   await appPromise;
-  server(req, res); // Forward request to NestJS
+  server(req, res);
 }

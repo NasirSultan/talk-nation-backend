@@ -4,6 +4,6 @@
     { "src": "dist/serverless.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "dist/serverless.js" }
+    { "src": "/api/(.*)", "dest": "dist/serverless.js" }
   ]
 }
