@@ -5,25 +5,27 @@ FROM node:20
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json first
-# This helps Docker cache dependencies
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy Prisma schema separately first (important for caching)
+# Copy env file into container
+COPY .env .env
+
+# Copy Prisma schema first for better caching
 COPY prisma ./prisma
 
-# Generate Prisma client
+# Generate Prisma client using env
 RUN npx prisma generate
 
-# Copy the rest of the project (src, tsconfig, etc.)
+# Copy the rest of the project
 COPY . .
 
 # Build NestJS project
 RUN npm run build
 
-# Expose port 3000
+# Expose port
 EXPOSE 3000
 
 # Start the app in production mode
