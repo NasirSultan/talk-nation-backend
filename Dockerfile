@@ -11,11 +11,14 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the project
-COPY . .
+# Copy Prisma schema separately first (important for caching)
+COPY prisma ./prisma
 
-# Generate Prisma client (if you add Prisma later)
-RUN npm run postinstall
+# Generate Prisma client
+RUN npx prisma generate
+
+# Copy the rest of the project (src, tsconfig, etc.)
+COPY . .
 
 # Build NestJS project
 RUN npm run build

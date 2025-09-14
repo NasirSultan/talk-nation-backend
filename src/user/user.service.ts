@@ -1,31 +1,23 @@
-import { Injectable } from '@nestjs/common'
-
-export interface User {
-  id: number
-  name: string
-  email: string
-}
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { PrismaService } from '../lib/prisma/prisma.service'
 
 @Injectable()
 export class UserService {
-  private static users: User[] = []
-  private static idCounter = 1
+  constructor(private prisma: PrismaService) {}
 
-  getAllUsers(): User[] {
-    return UserService.users
+  getAllUsers() {
+    return this.prisma.user.findMany()
   }
 
-  getUserById(id: number): User | undefined {
-    return UserService.users.find(user => user.id === id)
-  }
-
-  createUser(data: { name: string; email: string }): User {
-    const newUser: User = {
-      id: UserService.idCounter++,
-      name: data.name,
-      email: data.email,
+  async getUserById(id: number) {
+    const user = await this.prisma.user.findUnique({ where: { id } })
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`)
     }
-    UserService.users.push(newUser)
-    return newUser
+    return user
+  }
+
+  createUser(data: { name: string; email: string }) {
+    return this.prisma.user.create({ data })
   }
 }

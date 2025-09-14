@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, NotFoundException } from '@nestjs/common'
+import { Controller, Get, Post, Body, Param } from '@nestjs/common'
 import { UserService } from './user.service'
 
 @Controller('api/users')
@@ -12,18 +12,11 @@ export class UserController {
 
   @Get(':id')
   getUserById(@Param('id') id: string) {
-    const user = this.userService.getUserById(Number(id))
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`)
-    }
-    return user
+    return this.userService.getUserById(Number(id))
   }
 
   @Post()
   createUser(@Body() body: { name: string; email: string }) {
-    if (!body.name || !body.email) {
-      throw new Error('Name and email are required')
-    }
     return this.userService.createUser(body)
   }
 }
