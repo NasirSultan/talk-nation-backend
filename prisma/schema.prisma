@@ -9,7 +9,129 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String?
+  phone     String?
+  country   String?
+  role      String?  // optional role (USER, ADMIN, etc.)
+  file      String?  // optional file path or URL
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]
+  podcasts  Podcast[]
+  longvideos  Longvideo[] 
+
+  
+}
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+  email     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Post {
+  id        String    @id @default(uuid())
+  title     String?   
+  text      String
+  hashtag   String?
+  file      String?
+  comment   Boolean?
+  view      ViewType  @default(PUBLIC)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ViewType {
+  PUBLIC
+  PRIVATE
+  FOLLOWERS
+}
+
+
+
+model Podcast {
+  id           String        @id @default(uuid())
+  title        String
+  description  String?
+  file         String?
+  thumbnail    String?
+  websiteUrl   String?
+  urlDesc      String?
+  session      Int?
+  episode      Int?
+  categories   String[]
+  view         ViewType       @default(PUBLIC)
+  comment      Boolean        @default(true)
+  reaction     Boolean        @default(true)
+  share        Boolean        @default(true)
+  thought      Boolean        @default(true)
+  scheduledAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  chapters     Chapter[]
+}
+
+model Chapter {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  file        String?
+  duration    Int?
+  podcastId   String? 
+  podcast     Podcast? @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+longvideoId String?   
+  longvideo   Longvideo?  @relation(fields: [longvideoId], references: [id], onDelete: Cascade)
+}
+
+
+
+enum VideoQuality {
+  AUTO
+  P1440
+  P1080
+  P720
+  P480
+  P360
+}
+
+model Longvideo {
+  id           String       @id @default(uuid())
+  title        String
+  description  String?
+  file         String?      
+  thumbnails   String[]     
+  download     Boolean      @default(true)
+  categories   String[]
+  quality      VideoQuality @default(AUTO)
+  view         ViewType     @default(PUBLIC)
+  comment      Boolean      @default(true)
+  reaction     Boolean      @default(true)
+  share        Boolean      @default(true)
+  thought      Boolean      @default(true)
+  scheduledAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  chapters     Chapter[]
+
+  @@index([userId])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@index([categories], type: Gin)
 }

@@ -1,32 +1,34 @@
-# Use official Node.js 20 image as base
 FROM node:20
 
-# Set working directory inside container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json first
+# Copy package files first
 COPY package*.json ./
+
+# Copy Prisma schema
+COPY prisma ./prisma
 
 # Install dependencies
 RUN npm install
 
-# Copy env file into container
-COPY .env .env
-
-# Copy Prisma schema first for better caching
-COPY prisma ./prisma
-
-# Generate Prisma client using env
-RUN npx prisma generate
-
-# Copy the rest of the project
+# Copy the rest of the code
 COPY . .
 
-# Build NestJS project
+# Build NestJS application
 RUN npm run build
 
-# Expose port
+# Generate Prisma client AGAIN after build to ensure it's available in dist
+RUN npx prisma generate
+
+# Verify both locations have Prisma client
+RUN echo "Checking Prisma client locations:" && \
+    ls -la node_modules/.prisma/client/ && \
+    echo "Dist prisma service:" && \
+    ls -la dist/lib/prisma/ && \
+    echo "Copying Prisma client to dist..." && \
+    cp -r node_modules/.prisma/client/* dist/node_modules/.prisma/client/ 2>/dev/null || true
+
 EXPOSE 3000
 
-# Start the app in production mode
+# Start the application
 CMD ["npm", "run", "start:prod"]
