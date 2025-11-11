@@ -22,7 +22,11 @@ model User {
   posts     Post[]
   podcasts  Podcast[]
   longvideos  Longvideo[] 
-
+  reels  Reel[]
+  blogs     Blog[]
+  polls      Poll[]       @relation("UserPolls")     // polls created by this user
+  pollVotes  PollVote[]   @relation("UserVotes")     // votes cast by this user
+  livestreams  Livestream[] 
   
 }
 
@@ -135,3 +139,173 @@ model Longvideo {
   @@index([createdAt])
   @@index([categories], type: Gin)
 }
+
+
+model Reel {
+  id              String      @id @default(uuid())
+  title           String
+  description     String?
+  file            String
+  thumbnail       String?
+  categories      String[]
+
+  browserSound    Boolean     @default(true)
+  view            ViewType    @default(PUBLIC)
+
+  allowDuets      Boolean     @default(true)
+  allowRemixes    Boolean     @default(true)
+  showInFeed      Boolean     @default(true)
+
+  comment         Boolean     @default(true)
+  reaction        Boolean     @default(true)
+  share           Boolean     @default(true)
+  thought         Boolean     @default(true)
+
+  scheduledAt     DateTime? 
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([categories], type: Gin)
+}
+
+
+model Blog {
+  id             String      @id @default(uuid())
+  title          String
+  file           String
+  excerpt        String?     // short summary of the blog
+  content        Json        // structured content: blocks, markdown + metadata
+  media          String[]    @default([]) // one or more media files, empty if none
+
+
+  categories     String[]    // tags or categories
+
+  seoDescription String?     // SEO description
+  seoWebbug      String?     // SEO webbug or tracking
+
+  view           ViewType    @default(PUBLIC) // privacy/public
+
+  allowComments  Boolean     @default(true)   // allow comments
+  allowReactions Boolean     @default(true)   // likes, reactions
+  allowShare     Boolean     @default(true)   // shareable
+  featured       Boolean     @default(false)  // mark as featured post
+
+  scheduledAt    DateTime?   // optional schedule for publishing
+
+  hateSpeechFlag Boolean     @default(true)  // flagged for hate speech or inappropriate content
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  authorId       String
+  author         User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([categories], type: Gin)
+  @@index([media], type: Gin)
+  @@index([scheduledAt])
+  @@index([hateSpeechFlag])
+}
+
+
+
+model Poll {
+  id              String        @id @default(uuid())
+  question        String
+  categories      String[]
+  view            ViewType      @default(PUBLIC)
+
+  allowAnonymous  Boolean       @default(true)
+  showResults     Boolean       @default(true)
+  allowComments   Boolean       @default(true)
+  allowReactions  Boolean       @default(true)
+  allowShare      Boolean       @default(true)
+  sendNotification Boolean      @default(false)
+  featured        Boolean       @default(false)
+
+  scheduledAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  authorId        String?
+  author          User?         @relation("UserPolls", fields: [authorId], references: [id], onDelete: SetNull)
+
+  options         PollOption[]
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([categories], type: Gin)
+  @@index([scheduledAt])
+}
+
+model PollOption {
+  id       String       @id @default(uuid())
+  text     String
+  votes    PollVote[]
+  pollId   String?
+  poll     Poll?         @relation(fields: [pollId], references: [id], onDelete: SetNull)
+}
+
+model PollVote {
+  id        String       @id @default(uuid())
+  userId    String?
+  user      User?         @relation("UserVotes", fields: [userId], references: [id], onDelete: SetNull)
+  optionId  String?
+  option    PollOption?   @relation(fields: [optionId], references: [id], onDelete: SetNull)
+  createdAt DateTime      @default(now())
+
+  @@unique([userId, optionId])
+}
+
+
+
+model Livestream {
+  id             String      @id @default(uuid())
+  title          String
+  description    String?
+  file           String?
+  categories     String[]
+  liveMode       LiveMode    @default(ROMAN)
+  view           ViewType    @default(PUBLIC)
+
+  lobbySettings  LobbySettings?
+
+  allowComments  Boolean     @default(true)
+  allowReactions Boolean     @default(true)
+  allowShare     Boolean     @default(true)
+  featured       Boolean     @default(false)
+
+  scheduledAt    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@index([categories], type: Gin)
+}
+
+enum LiveMode {
+  ROMAN
+  INTERVIEW
+}
+
+model LobbySettings {
+  id            String      @id @default(uuid())
+  livestreamId  String      @unique
+  livestream    Livestream  @relation(fields: [livestreamId], references: [id], onDelete: Cascade)
+  
+  enablePreShow Boolean     @default(false)
+  allowEarlyChat Boolean    @default(false)
+  showViewCount Boolean     @default(true)
+}
+

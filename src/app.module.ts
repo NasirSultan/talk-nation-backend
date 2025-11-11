@@ -7,8 +7,37 @@ import { PostModule } from './creator/post/post.module';
 import { ChapterModule } from './creator/chapter/chapter.module'
 import { PodcastModule } from './creator/podcast/podcast.module'
 import { LongvideoModule } from './creator/longvideo/longvideo.module';
+import { ReelModule } from './creator/reel/reel.module';
+import { BlogModule } from './creator/blog/blog.module';
+import { PollModule } from './creator/poll/poll.module';
+import { LivestreamModule } from './creator/livestream/livestream.module';
+import { AgoraModule } from './agora/agora.module';
+
 @Module({
-  imports: [UserModule, AuthModule, PostModule, ChapterModule, PodcastModule, LongvideoModule],
+ imports: [
+  UserModule,
+  AuthModule,
+  PostModule,
+  ChapterModule,
+  PodcastModule,
+  LongvideoModule,
+  ReelModule,
+  BlogModule,
+  PollModule,
+AgoraModule,
+  LivestreamModule,
+],
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
   controllers: [AppController],
   providers: [AppService],
 })
