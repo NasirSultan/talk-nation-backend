@@ -27,6 +27,10 @@ model User {
   polls      Poll[]       @relation("UserPolls")     // polls created by this user
   pollVotes  PollVote[]   @relation("UserVotes")     // votes cast by this user
   livestreams  Livestream[] 
+  reactions Reaction[] 
+  comments  Comment[] 
+   shares   Share[] 
+     bookmarks Bookmark[]
   
 }
 
@@ -49,7 +53,10 @@ model Post {
   view      ViewType  @default(PUBLIC)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-
+  reactions    Reaction[]
+  comments  Comment[]
+   shares   Share[] 
+     bookmarks Bookmark[]
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -86,6 +93,10 @@ model Podcast {
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   chapters     Chapter[]
+  reactions    Reaction[] 
+   comments  Comment[]
+    shares   Share[] 
+      bookmarks Bookmark[]
 }
 
 model Chapter {
@@ -133,7 +144,10 @@ model Longvideo {
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   chapters     Chapter[]
-
+    reactions    Reaction[]
+     comments  Comment[]
+      shares   Share[] 
+        bookmarks Bookmark[]
   @@index([userId])
   @@index([scheduledAt])
   @@index([createdAt])
@@ -167,7 +181,10 @@ model Reel {
 
   userId          String
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  reactions    Reaction[]
+   comments  Comment[]
+    shares   Share[] 
+      bookmarks Bookmark[]
   @@index([userId])
   @@index([createdAt])
   @@index([categories], type: Gin)
@@ -204,7 +221,10 @@ model Blog {
 
   authorId       String
   author         User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
+    reactions    Reaction[]
+     comments  Comment[]
+      shares   Share[] 
+        bookmarks Bookmark[]
   @@index([authorId])
   @@index([createdAt])
   @@index([categories], type: Gin)
@@ -237,7 +257,10 @@ model Poll {
   author          User?         @relation("UserPolls", fields: [authorId], references: [id], onDelete: SetNull)
 
   options         PollOption[]
-
+    reactions    Reaction[]
+     comments  Comment[]
+      shares   Share[] 
+        bookmarks Bookmark[]
   @@index([authorId])
   @@index([createdAt])
   @@index([categories], type: Gin)
@@ -287,7 +310,10 @@ model Livestream {
 
   userId         String
   user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+    reactions    Reaction[]
+     comments  Comment[]
+      shares   Share[] 
+        bookmarks Bookmark[]
   @@index([userId])
   @@index([scheduledAt])
   @@index([createdAt])
@@ -309,3 +335,184 @@ model LobbySettings {
   showViewCount Boolean     @default(true)
 }
 
+
+
+model Reaction {
+  id            String        @id @default(uuid())
+  type          ReactionType  @default(LIKE)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  postId        String?
+  post          Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  podcastId     String?
+  podcast       Podcast?      @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  longvideoId   String?
+  longvideo     Longvideo?    @relation(fields: [longvideoId], references: [id], onDelete: Cascade)
+
+  reelId        String?
+  reel          Reel?         @relation(fields: [reelId], references: [id], onDelete: Cascade)
+
+  blogId        String?
+  blog          Blog?         @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  pollId        String?
+  poll          Poll?         @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  livestreamId  String?
+  livestream    Livestream?   @relation(fields: [livestreamId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime      @default(now())
+
+  @@index([userId])
+  @@index([postId])
+  @@index([podcastId])
+  @@index([longvideoId])
+  @@index([reelId])
+  @@index([blogId])
+  @@index([pollId])
+  @@index([livestreamId])
+}
+
+enum ReactionType {
+  LIKE
+  LOVE
+  CLAP
+  FIRE
+  LAUGH
+  SAD
+  ANGRY
+}
+
+
+
+
+
+
+model Comment {
+  id        String    @id @default(uuid())
+  text      String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  postId        String?
+  post          Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  podcastId     String?
+  podcast       Podcast?      @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  longvideoId   String?
+  longvideo     Longvideo?    @relation(fields: [longvideoId], references: [id], onDelete: Cascade)
+
+  reelId        String?
+  reel          Reel?         @relation(fields: [reelId], references: [id], onDelete: Cascade)
+
+  blogId        String?
+  blog          Blog?         @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  pollId        String?
+  poll          Poll?         @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  livestreamId  String?
+  livestream    Livestream?   @relation(fields: [livestreamId], references: [id], onDelete: Cascade)
+
+  parentId  String?   
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([postId])
+  @@index([podcastId])
+  @@index([longvideoId])
+  @@index([reelId])
+  @@index([blogId])
+  @@index([pollId])
+  @@index([livestreamId])
+}
+
+
+
+model Share {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  postId        String?
+  post          Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  podcastId     String?
+  podcast       Podcast?      @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  longvideoId   String?
+  longvideo     Longvideo?    @relation(fields: [longvideoId], references: [id], onDelete: Cascade)
+
+  reelId        String?
+  reel          Reel?         @relation(fields: [reelId], references: [id], onDelete: Cascade)
+
+  blogId        String?
+  blog          Blog?         @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  pollId        String?
+  poll          Poll?         @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  livestreamId  String?
+  livestream    Livestream?   @relation(fields: [livestreamId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([postId])
+  @@index([podcastId])
+  @@index([longvideoId])
+  @@index([reelId])
+  @@index([blogId])
+  @@index([pollId])
+  @@index([livestreamId])
+}
+
+
+
+model Bookmark {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  postId        String?
+  post          Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  podcastId     String?
+  podcast       Podcast?      @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  longvideoId   String?
+  longvideo     Longvideo?    @relation(fields: [longvideoId], references: [id], onDelete: Cascade)
+
+  reelId        String?
+  reel          Reel?         @relation(fields: [reelId], references: [id], onDelete: Cascade)
+
+  blogId        String?
+  blog          Blog?         @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  pollId        String?
+  poll          Poll?         @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  livestreamId  String?
+  livestream    Livestream?   @relation(fields: [livestreamId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([postId])
+  @@index([podcastId])
+  @@index([longvideoId])
+  @@index([reelId])
+  @@index([blogId])
+  @@index([pollId])
+  @@index([livestreamId])
+}

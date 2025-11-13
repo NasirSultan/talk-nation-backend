@@ -12,6 +12,10 @@ import { BlogModule } from './creator/blog/blog.module';
 import { PollModule } from './creator/poll/poll.module';
 import { LivestreamModule } from './creator/livestream/livestream.module';
 import { AgoraModule } from './agora/agora.module';
+import { ReactionModule } from './interactions/reaction/reaction.module';
+import { CommentModule } from './interactions/Comment/comment.module';
+import { ShareModule } from './interactions/share/share.module';
+import { BookmarkModule } from './interactions/bookmark/bookmark.module';
 
 @Module({
  imports: [
@@ -26,6 +30,10 @@ import { AgoraModule } from './agora/agora.module';
   PollModule,
 AgoraModule,
   LivestreamModule,
+  ReactionModule,
+  CommentModule,
+  ShareModule,
+  BookmarkModule,
 ],
 
  
