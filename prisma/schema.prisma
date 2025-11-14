@@ -31,6 +31,9 @@ model User {
   comments  Comment[] 
    shares   Share[] 
      bookmarks Bookmark[]
+     impressions Impression[]
+views       View[]
+
   
 }
 
@@ -57,6 +60,9 @@ model Post {
   comments  Comment[]
    shares   Share[] 
      bookmarks Bookmark[]
+  impressions Impression[]
+views       View[]
+   
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -97,6 +103,9 @@ model Podcast {
    comments  Comment[]
     shares   Share[] 
       bookmarks Bookmark[]
+  impressions Impression[]
+views       View[]
+    
 }
 
 model Chapter {
@@ -148,6 +157,9 @@ model Longvideo {
      comments  Comment[]
       shares   Share[] 
         bookmarks Bookmark[]
+  impressions Impression[]
+views       View[]
+      
   @@index([userId])
   @@index([scheduledAt])
   @@index([createdAt])
@@ -185,6 +197,9 @@ model Reel {
    comments  Comment[]
     shares   Share[] 
       bookmarks Bookmark[]
+      impressions Impression[]
+views       View[]
+
   @@index([userId])
   @@index([createdAt])
   @@index([categories], type: Gin)
@@ -225,6 +240,9 @@ model Blog {
      comments  Comment[]
       shares   Share[] 
         bookmarks Bookmark[]
+  impressions Impression[]
+views       View[]
+      
   @@index([authorId])
   @@index([createdAt])
   @@index([categories], type: Gin)
@@ -261,6 +279,9 @@ model Poll {
      comments  Comment[]
       shares   Share[] 
         bookmarks Bookmark[]
+impressions Impression[]
+views       View[]
+
   @@index([authorId])
   @@index([createdAt])
   @@index([categories], type: Gin)
@@ -314,6 +335,9 @@ model Livestream {
      comments  Comment[]
       shares   Share[] 
         bookmarks Bookmark[]
+  impressions Impression[]
+views       View[]
+      
   @@index([userId])
   @@index([scheduledAt])
   @@index([createdAt])
@@ -515,4 +539,80 @@ model Bookmark {
   @@index([blogId])
   @@index([pollId])
   @@index([livestreamId])
+}
+
+
+model Impression {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  postId        String?
+  post          Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  podcastId     String?
+  podcast       Podcast?     @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  longvideoId   String?
+  longvideo     Longvideo?   @relation(fields: [longvideoId], references: [id], onDelete: Cascade)
+
+  reelId        String?
+  reel          Reel?        @relation(fields: [reelId], references: [id], onDelete: Cascade)
+
+  blogId        String?
+  blog          Blog?        @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  pollId        String?
+  poll          Poll?        @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  livestreamId  String?
+  livestream    Livestream?  @relation(fields: [livestreamId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, podcastId])
+  @@unique([userId, longvideoId])
+  @@unique([userId, reelId])
+  @@unique([userId, blogId])
+  @@unique([userId, pollId])
+  @@unique([userId, livestreamId])
+}
+
+
+model View {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  postId        String?
+  post          Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  podcastId     String?
+  podcast       Podcast?     @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+  longvideoId   String?
+  longvideo     Longvideo?   @relation(fields: [longvideoId], references: [id], onDelete: Cascade)
+
+  reelId        String?
+  reel          Reel?        @relation(fields: [reelId], references: [id], onDelete: Cascade)
+
+  blogId        String?
+  blog          Blog?        @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  pollId        String?
+  poll          Poll?        @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  livestreamId  String?
+  livestream    Livestream?  @relation(fields: [livestreamId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@unique([userId, podcastId])
+  @@unique([userId, longvideoId])
+  @@unique([userId, reelId])
+  @@unique([userId, blogId])
+  @@unique([userId, pollId])
+  @@unique([userId, livestreamId])
 }

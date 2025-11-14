@@ -16,12 +16,16 @@ import { ReactionModule } from './interactions/reaction/reaction.module';
 import { CommentModule } from './interactions/Comment/comment.module';
 import { ShareModule } from './interactions/share/share.module';
 import { BookmarkModule } from './interactions/bookmark/bookmark.module';
+import { AnalyticsModule } from './interactions/analytics/analytics.module';
+
+
 
 @Module({
  imports: [
   UserModule,
   AuthModule,
   PostModule,
+  AnalyticsModule,
   ChapterModule,
   PodcastModule,
   LongvideoModule,
